@@ -3,7 +3,7 @@ const Hapi = require('hapi');
 const Good = require('good');
 
 const server = new Hapi.Server();
-server.connection({ port: 3000, host: 'localhost' });
+server.connection({ port: 8000, host: 'localhost' });
 
 let registerOptions = {
   reporters: {
@@ -27,19 +27,26 @@ server.register({
 
   server.route({
     method: 'GET',
-    path: '/',
+    path: '/{splat*}',
     handler: (request, reply) => {
-      server.log('error', 'CATACRASH');
       server.log('info', 'Asking for /');
-      reply('hello hapi');
+      reply(`Asking for ${encodeURIComponent(request.params.splat)}!`);
     }
   });
 
   server.route({
       method: 'GET',
-      path: '/{name}',
+      path: '/users/{name}',
       handler: function (request, reply) {
           reply(`Hello, ${encodeURIComponent(request.params.name)}!`);
+      }
+  });
+
+  server.route({
+      method: 'GET',
+      path: '/files/{file}.jpg',
+      handler: function (request, reply) {
+          reply(`Asking for JPG: ${encodeURIComponent(request.params.file)}!`);
       }
   });
 
