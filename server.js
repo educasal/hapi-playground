@@ -12,6 +12,14 @@ server.route({
   handler: (request, h) => ('hello hapi')
 });
 
+server.route({
+    method: 'GET',
+    path: '/{name}',
+    handler: function (request, h) {
+        return `Hello, ${encodeURIComponent(request.params.name)}!`;
+    }
+});
+
 async function start() {
     try {
         await server.start();
