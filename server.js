@@ -1,6 +1,7 @@
 'use strict'
-const Hapi = require('hapi');
+const Boom = require('boom');
 const Good = require('good');
+const Hapi = require('hapi');
 
 const server = new Hapi.Server();
 server.connection({ port: 8000, host: 'localhost' });
@@ -30,7 +31,7 @@ server.register({
     path: '/{splat*}',
     handler: (request, reply) => {
       server.log('info', 'Asking for /');
-      reply(`Asking for ${encodeURIComponent(request.params.splat)}!`);
+      reply(Boom.notFound());
     }
   });
 
@@ -46,7 +47,7 @@ server.register({
       method: 'GET',
       path: '/files/{file}.jpg',
       handler: function (request, reply) {
-          reply(`Asking for JPG: ${encodeURIComponent(request.params.file)}!`);
+          reply(Promise.resolve(`Asking for JPG: ${encodeURIComponent(request.params.file)}!`));
       }
   });
 
