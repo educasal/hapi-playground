@@ -1,34 +1,52 @@
 'use strict'
 const Hapi = require('hapi');
+const Good = require('good');
 
-const server = new Hapi.server({
-  host: 'localhost',
-  port: 8000
-});
+const server = new Hapi.Server();
+server.connection({ port: 3000, host: 'localhost' });
 
-server.route({
-  method: 'GET',
-  path: '/',
-  handler: (request, h) => ('hello hapi')
-});
-
-server.route({
-    method: 'GET',
-    path: '/{name}',
-    handler: function (request, h) {
-        return `Hello, ${encodeURIComponent(request.params.name)}!`;
-    }
-});
-
-async function start() {
-    try {
-        await server.start();
-    }
-    catch (err) {
-        console.log(err);
-        process.exit(1);
-    }
-    console.log('Server running at:', server.info.uri);
+let registerOptions = {
+  reporters: {
+    console: [
+      {
+        module: 'good-console',
+        args: [{ log: '*', response: '*' }]
+      },
+      'stdout'
+    ]
+  }
 };
 
-start();
+server.register({
+  register: Good,
+  options: registerOptions
+}, (err) => {
+  if (err) {
+    throw err;
+  }
+
+  server.route({
+    method: 'GET',
+    path: '/',
+    handler: (request, reply) => {
+      server.log('error', 'CATACRASH');
+      server.log('info', 'Asking for /');
+      reply('hello hapi');
+    }
+  });
+
+  server.route({
+      method: 'GET',
+      path: '/{name}',
+      handler: function (request, reply) {
+          reply(`Hello, ${encodeURIComponent(request.params.name)}!`);
+      }
+  });
+
+  server.start((err) => {
+    if (err) {
+      throw err;
+    }
+    server.log('info', 'Server running at: ' + server.info.uri);
+  });
+});
