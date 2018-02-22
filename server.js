@@ -1,9 +1,11 @@
 'use strict'
 const Boom = require('boom');
 const Good = require('good');
+const Handlebars = require('handlebars');
 const Hapi = require('hapi');
 const Inert = require('inert');
 const Path = require('path');
+const Vision = require('vision');
 
 const server = new Hapi.Server();
 server.connection({ port: 8000, host: 'localhost' });
@@ -22,12 +24,19 @@ let goodOptions = {
 
 server.register([
   { register: Good, options: goodOptions },
-  { register: Inert }
+  { register: Inert },
+  { register: Vision },
 ], (err) => {
   if (err) {
     throw err;
   }
 
+  server.views({
+    engines: { hbs: Handlebars },
+    path: __dirname + '/templates'
+  });
+
+  //Default route, not implemented -> 404
   server.route({
     method: 'GET',
     path: '/{splat*}',
@@ -37,13 +46,19 @@ server.register([
     }
   });
 
+  //Simple example
   server.route({
     method: 'GET',
     path: '/users/{name}',
     handler: function (request, reply) {
-      reply(`Hello, ${encodeURIComponent(request.params.name)}!`)
-      .type('text/plain')
-      .code(418);;
+      reply.view('users/show', {
+        title: 'Hapi Playground | Hapi ' + request.server.version,
+        message: `Hello, ${encodeURIComponent(request.params.name)}!`
+      });
+
+      // reply(`Hello, ${encodeURIComponent(request.params.name)}!`)
+      // .type('text/plain')
+      // .code(418);;
     }
   });
 
