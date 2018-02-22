@@ -36,6 +36,19 @@ server.register([
     path: __dirname + '/templates'
   });
 
+  server.ext('onPreResponse', (request, reply) => {
+    const response = request.response;
+    if (!response.isBoom) {
+      return reply.continue();
+    }
+
+    reply.view('errors/show', {
+      title: 'Hapi Playground | Hapi ' + request.server.version,
+      message: `Error: ${response.output.statusCode}!`
+    });
+
+  });
+
   //Default route, not implemented -> 404
   server.route({
     method: 'GET',
