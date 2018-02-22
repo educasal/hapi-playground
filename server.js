@@ -55,10 +55,6 @@ server.register([
         title: 'Hapi Playground | Hapi ' + request.server.version,
         message: `Hello, ${encodeURIComponent(request.params.name)}!`
       });
-
-      // reply(`Hello, ${encodeURIComponent(request.params.name)}!`)
-      // .type('text/plain')
-      // .code(418);;
     }
   });
 
